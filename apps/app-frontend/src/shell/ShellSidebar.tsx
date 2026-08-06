@@ -35,8 +35,8 @@ export const ShellSidebar = () => {
 
   return (
     <PageSidebar>
-      <PageSidebarBody isFilled>
-        <Nav aria-label="Primary navigation">
+      <PageSidebarBody usePageInsets isFilled>
+        <Nav aria-label={t('Primary navigation')}>
           {navRows.map((section) => (
             <NavGroup key={section.sectionId} title={section.label}>
               {section.children.map((item) => (

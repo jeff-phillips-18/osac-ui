@@ -19,14 +19,12 @@ import {
   ModalFooter,
   ModalHeader,
   PageToggleButton,
-  Stack,
   Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { BarsIcon } from '@patternfly/react-icons/dist/esm/icons/bars-icon';
 import { UserIcon } from '@patternfly/react-icons/dist/esm/icons/user-icon';
 
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
@@ -68,22 +66,18 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
       <Masthead display={{ default: 'inline' }}>
         <MastheadMain>
           <MastheadToggle>
-            <PageToggleButton variant="plain" aria-label="Global navigation">
-              <BarsIcon />
-            </PageToggleButton>
+            <PageToggleButton isHamburgerButton aria-label={t('Global navigation')} />
           </MastheadToggle>
-          <MastheadLogo>
-            <MastheadBrand>
-              <Stack>
-                <Title headingLevel="h4" size="lg">
-                  Red Hat OSAC
-                </Title>
-                {tenantId && (
-                  <SubtleContent>{t('Tenant: {{ tenantId }}', { tenantId })}</SubtleContent>
-                )}
-              </Stack>
-            </MastheadBrand>
-          </MastheadLogo>
+          <MastheadBrand>
+            <MastheadLogo>
+              <Title headingLevel="h4" size="lg">
+                Red Hat OSAC
+              </Title>
+              {tenantId && (
+                <SubtleContent>{t('Tenant: {{ tenantId }}', { tenantId })}</SubtleContent>
+              )}
+            </MastheadLogo>
+          </MastheadBrand>
         </MastheadMain>
 
         <MastheadContent>
