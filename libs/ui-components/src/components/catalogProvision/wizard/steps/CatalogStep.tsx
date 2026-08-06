@@ -15,8 +15,8 @@ import {
 } from '@patternfly/react-core';
 import { useFormikContext } from 'formik';
 
+import CatalogItemCard from './CatalogItemCard';
 import { useTranslation } from '../../../../hooks/useTranslation';
-import CatalogItemCard from '../../../catalog/CatalogItemCard';
 import { CatalogItem, filterCatalogItemsBySearch } from '../../../catalog/catalogItemDisplay';
 import { getVisibleFieldError } from '../../../Form/fieldError';
 import { useShowFieldValidationErrors } from '../../../Form/FieldValidationContext';

@@ -1,0 +1,19 @@
+.catalog-item-detail-content__section-title {
+  margin-bottom: var(--pf-t--global--spacer--sm);
+}
+
+.catalog-item-detail-content__label-key {
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+}
+
+.catalog-item-detail-content .pf-v6-c-description-list__group {
+  margin-bottom: var(--pf-t--global--spacer--md);
+}
+
+.catalog-item-detail-content .pf-v6-c-description-list__group:last-child {
+  margin-bottom: 0;
+}
+
+.catalog-item-detail-content--cluster .pf-v6-c-description-list__term {
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+}

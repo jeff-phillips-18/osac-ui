@@ -1,9 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 import {
+  Button,
   Card,
   CardBody,
+  CardFooter,
   CardHeader,
   CardTitle,
-  Content,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
   Divider,
   Flex,
   FlexItem,
@@ -11,135 +17,196 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
+import LockIcon from '@patternfly/react-icons/dist/esm/icons/lock-icon';
+import RocketIcon from '@patternfly/react-icons/dist/esm/icons/rocket-icon';
 
-import type { CatalogItem } from './catalogItemDisplay';
+import CatalogItemCardActionsMenu from './CatalogItemCardActionsMenu';
 import {
-  catalogItemMetadataLabelEntries,
-  catalogItemResourceParts,
-  catalogItemSubtitle,
+  type CatalogItemWithType,
+  type CatalogNetworkingLockTone,
+  catalogItemCardSummaryRows,
+  catalogItemCreatePath,
+  catalogItemManagedFooterText,
+  catalogItemNetworkingLockSummary,
+  catalogItemTypeBadgeLabel,
 } from './catalogItemDisplay';
 import { useTranslation } from '../../hooks/useTranslation';
 import { CatalogItemIcon } from '../../icons';
 
-export interface CatalogItemCardSelection {
-  selected: boolean;
-  radioName: string;
-  onSelect: () => void;
+interface CatalogItemCardProps {
+  item: CatalogItemWithType;
+  ouiaId?: string;
+  onOpenDetails?: () => void;
 }
 
-interface CatalogItemCardProps {
-  item: CatalogItem;
-  ouiaId?: string;
-  selection?: CatalogItemCardSelection;
-  onOpenDetails?: () => void;
-  isSelected?: boolean;
-}
+const networkingLabelColor = (
+  tone: CatalogNetworkingLockTone,
+): 'grey' | 'orange' | 'blue' => {
+  switch (tone) {
+    case 'locked':
+      return 'grey';
+    case 'mixed':
+      return 'orange';
+    default:
+      return 'blue';
+  }
+};
 
 const CatalogItemCard = ({
   item,
   ouiaId,
-  selection,
   onOpenDetails,
-  isSelected,
 }: CatalogItemCardProps) => {
   const { t } = useTranslation();
-  const resources = catalogItemResourceParts(item);
-  const metadataLabels = catalogItemMetadataLabelEntries(item);
-  const subtitle = catalogItemSubtitle(item);
-  const isBrowseMode = Boolean(onOpenDetails && !selection);
-  const isWizardMode = Boolean(selection);
+  const navigate = useNavigate();
+  const summaryRows = catalogItemCardSummaryRows(item, t);
+  const networkingSummary = catalogItemNetworkingLockSummary(item, t);
   const cardId = `catalog-item-card-${item.id}`;
   const titleId = `${cardId}-title`;
+  const typeLabel = catalogItemTypeBadgeLabel(item.type, t);
+  const managedFooterText = catalogItemManagedFooterText(item.type, t);
+  const showNetworkingLockIcon = networkingSummary.tone !== 'unlocked';
+
+  const handleOpenDetails = () => {
+    onOpenDetails?.();
+  };
+
+  const handleLaunch = () => {
+    navigate(catalogItemCreatePath(item.type, item.id));
+  };
 
   return (
     <Card
       id={cardId}
       ouiaId={ouiaId}
-      isSelectable={isWizardMode}
-      isClickable={isBrowseMode}
-      isSelected={selection?.selected}
-      isClicked={isBrowseMode && isSelected}
       isFullHeight
+      className="catalog-item-card"
     >
       <CardHeader
-        selectableActions={
-          isWizardMode && selection
-            ? {
-                variant: 'single',
-                name: selection.radioName,
-                selectableActionId: `${selection.radioName}-${item.id}`,
-                selectableActionAriaLabel: item.title,
-                hasNoOffset: true,
-                onChange: () => {
-                  selection.onSelect();
-                },
-              }
-            : isBrowseMode
-              ? {
-                  selectableActionAriaLabel: t('Open catalog item details for {{title}}', {
-                    title: item.title,
-                  }),
-                  onClickAction: () => {
-                    onOpenDetails?.();
-                  },
-                }
-              : undefined
-        }
+        actions={{
+          actions: (
+            <Flex
+              alignItems={{ default: 'alignItemsCenter' }}
+              gap={{ default: 'gapSm' }}
+              flexWrap={{ default: 'nowrap' }}
+            >
+              <FlexItem>
+                <Label color="blue" isCompact>
+                  {typeLabel}
+                </Label>
+              </FlexItem>
+              {item.published ? (
+                <FlexItem>
+                  <Label color="green" isCompact>
+                    {t('Live')}
+                  </Label>
+                </FlexItem>
+              ) : null}
+              <FlexItem>
+                <CatalogItemCardActionsMenu itemTitle={item.title} onLaunch={handleLaunch}/>
+              </FlexItem>
+            </Flex>
+          ),
+        }}
       >
-        <Flex alignItems={{ default: 'alignItemsFlexStart' }} gap={{ default: 'gapSm' }}>
-          <FlexItem>
-            <CatalogItemIcon kind={item.$typeName} />
-          </FlexItem>
-          <FlexItem flex={{ default: 'flex_1' }}>
-            <CardTitle id={titleId}>{item.title}</CardTitle>
-          </FlexItem>
-        </Flex>
+        <span className="catalog-item-card__icon-tile">
+          <CatalogItemIcon kind={item.$typeName} />
+        </span>
       </CardHeader>
-      <Divider />
+
+      <CardTitle id={titleId} className="catalog-item-card__title">
+        {onOpenDetails ? (
+          <Button
+            variant="link"
+            isInline
+            onClick={(event) => {
+              event.stopPropagation();
+              handleOpenDetails();
+            }}
+            aria-label={t('Open catalog item details for {{title}}', {
+              title: item.title,
+            })}
+          >
+            {item.title}
+          </Button>
+        ) : (
+          item.title
+        )}
+      </CardTitle>
+
       <CardBody>
         <Stack hasGutter>
-          <StackItem>
-            <Content component="small" className="pf-v6-u-color-text-subtle">
-              {subtitle}
-            </Content>
-          </StackItem>
-          {resources.length > 0 ? (
-            <StackItem>
-              <Flex flexWrap={{ default: 'wrap' }} gap={{ default: 'gapSm' }}>
-                {resources.map((resource, index) => (
-                  <FlexItem key={`${item.id}-resource-${index}`}>
-                    <Label variant="outline" color="blue" isCompact>
-                      {resource}
-                    </Label>
-                  </FlexItem>
+          <StackItem isFilled>
+            {summaryRows.length > 0 ? (
+              <DescriptionList isHorizontal isCompact horizontalTermWidthModifier={{ default: '15ch' }}>
+                {summaryRows.map((row) => (
+                  <DescriptionListGroup key={`${item.id}-${row.label}`}>
+                    <DescriptionListTerm>{row.label}</DescriptionListTerm>
+                    <DescriptionListDescription>{row.value}</DescriptionListDescription>
+                  </DescriptionListGroup>
                 ))}
-              </Flex>
-            </StackItem>
-          ) : null}
-          {metadataLabels.length > 0 ? (
-            <>
-              {resources.length > 0 ? (
-                <StackItem>
-                  <Divider />
-                </StackItem>
-              ) : null}
-              <StackItem>
-                <Flex flexWrap={{ default: 'wrap' }} gap={{ default: 'gapSm' }}>
-                  {metadataLabels.map(({ key, value }) => (
-                    <FlexItem key={`${item.id}-label-${key}`}>
-                      <Label variant="outline" color="grey" isCompact>
-                        <b>{key}</b>
-                        {': '}
-                        {value}
-                      </Label>
-                    </FlexItem>
-                  ))}
-                </Flex>
-              </StackItem>
-            </>
-          ) : null}
+              </DescriptionList>
+            ) : null}
+          </StackItem>
+
+          <StackItem>
+            <Divider />
+          </StackItem>
+
+          <StackItem>
+            <Flex
+              alignItems={{ default: 'alignItemsCenter' }}
+              justifyContent={{ default: 'justifyContentSpaceBetween' }}
+              gap={{ default: 'gapSm' }}
+              flexWrap={{ default: 'wrap' }}
+            >
+              <FlexItem className="catalog-item-card__networking-label">
+                {t('Networking')}
+              </FlexItem>
+              <FlexItem>
+                <Label
+                  variant="filled"
+                  color={networkingLabelColor(networkingSummary.tone)}
+                  isCompact
+                  icon={showNetworkingLockIcon ? <LockIcon /> : undefined}
+                >
+                  {networkingSummary.label}
+                </Label>
+              </FlexItem>
+            </Flex>
+          </StackItem>
         </Stack>
       </CardBody>
+
+      <CardFooter>
+        <Stack hasGutter>
+          <StackItem>
+            <Flex
+              alignItems={{ default: 'alignItemsCenter' }}
+              gap={{ default: 'gapXs' }}
+              className="catalog-item-card__footer-note2"
+            >
+              <FlexItem>
+                <LockIcon aria-hidden />
+              </FlexItem>
+              <FlexItem>{managedFooterText}</FlexItem>
+            </Flex>
+          </StackItem>
+          <StackItem>
+            <Button
+              variant="primary"
+              isBlock
+              icon={<RocketIcon />}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleLaunch();
+              }}
+            >
+              {t('Launch instance')}
+            </Button>
+          </StackItem>
+        </Stack>
+      </CardFooter>
     </Card>
   );
 };

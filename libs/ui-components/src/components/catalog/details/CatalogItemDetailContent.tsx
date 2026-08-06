@@ -12,33 +12,36 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { CatalogFieldEditabilityLabel } from './CatalogFieldEditabilityLabel';
+import { CatalogFieldEditabilityLabel } from './CatalogFieldEditabilityLabel.tsx';
+import ClusterCatalogItemDetailContent from './ClusterCatalogItemDetailContent.tsx';
+import { useTranslation } from '../../../hooks/useTranslation.ts';
+import { catalogItemFieldDefinitions } from '../../catalogProvision/catalogFieldDefinition.ts';
+import { SubtleContent } from '../../SubtleContent/SubtleContent.tsx';
 import {
-  type CatalogItem,
+  type CatalogItemWithType,
   catalogItemMetadataLabelEntries,
   catalogItemResourceParts,
   formatCatalogFieldDefault,
-} from './catalogItemDisplay';
-import { useTranslation } from '../../hooks/useTranslation';
-import { catalogItemFieldDefinitions } from '../catalogProvision/catalogFieldDefinition';
-import { SubtleContent } from '../SubtleContent/SubtleContent';
+} from '../catalogItemDisplay.ts';
+
+import './CatalogItemDetailContent.css';
 
 interface CatalogItemDetailContentProps {
-  item: CatalogItem;
+  item: CatalogItemWithType;
 }
 
-export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps) => {
+const GenericCatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps) => {
   const { t } = useTranslation();
   const resources = catalogItemResourceParts(item);
   const metadataLabels = catalogItemMetadataLabelEntries(item);
   const fieldDefinitions = catalogItemFieldDefinitions(item);
 
   return (
-    <Stack className="catalog-item-detail-content">
+    <Stack hasGutter className="catalog-item-detail-content">
       <StackItem>
         <DescriptionList isCompact>
           <DescriptionListGroup>
-            <DescriptionListTerm>Catalog name</DescriptionListTerm>
+            <DescriptionListTerm>{t('Catalog name')}</DescriptionListTerm>
             <DescriptionListDescription>{item.metadata?.name ?? '—'}</DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
@@ -47,7 +50,7 @@ export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps
       {item.description?.trim() ? (
         <StackItem>
           <Title headingLevel="h3" size="md" className="catalog-item-detail-content__section-title">
-            Description
+            {t('Description')}
           </Title>
           <Content component="p">{item.description}</Content>
         </StackItem>
@@ -56,7 +59,7 @@ export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps
       {resources.length > 0 ? (
         <StackItem>
           <Title headingLevel="h3" size="md" className="catalog-item-detail-content__section-title">
-            Default resources
+            {t('Default resources')}
           </Title>
           <Flex flexWrap={{ default: 'wrap' }} gap={{ default: 'gapSm' }}>
             {resources.map((resource, index) => (
@@ -73,7 +76,7 @@ export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps
       {metadataLabels.length > 0 ? (
         <StackItem>
           <Title headingLevel="h3" size="md" className="catalog-item-detail-content__section-title">
-            Labels
+            {t('Labels')}
           </Title>
           <Flex flexWrap={{ default: 'wrap' }} gap={{ default: 'gapSm' }}>
             {metadataLabels.map(({ key, value }) => (
@@ -134,4 +137,11 @@ export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps
       ) : null}
     </Stack>
   );
+};
+
+export const CatalogItemDetailContent = ({ item }: CatalogItemDetailContentProps) => {
+  if (item.type === 'cluster') {
+    return <ClusterCatalogItemDetailContent item={item} />;
+  }
+  return <GenericCatalogItemDetailContent item={item} />;
 };
