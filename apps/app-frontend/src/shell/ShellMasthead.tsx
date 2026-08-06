@@ -45,13 +45,13 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
   const [logoutError, setLogoutError] = React.useState<string>();
   const navigate = useNavigate();
   const { role, username, tenantId } = useSession();
-  const displayName = username || 'User';
+  const displayName = username || t('User');
 
   return (
     <>
       {logoutError && (
         <Modal variant="small" isOpen onClose={() => setLogoutError(undefined)}>
-          <ModalHeader title="Logout failed" titleIconVariant="danger" />
+          <ModalHeader title={t('Logout failed')} titleIconVariant="danger" />
           <ModalBody>
             <Alert variant="danger" isInline title={logoutError ?? ''} />
           </ModalBody>
@@ -71,7 +71,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
           <MastheadBrand>
             <MastheadLogo>
               <Title headingLevel="h4" size="lg">
-                Red Hat OSAC
+                {t('Red Hat OSAC')}
               </Title>
               {tenantId && (
                 <SubtleContent>{t('Tenant: {{ tenantId }}', { tenantId })}</SubtleContent>
@@ -100,7 +100,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
                         isExpanded={isUserMenuOpen}
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                         icon={<UserIcon />}
-                        aria-label="Account menu"
+                        aria-label={t('Account menu')}
                       >
                         {displayName}{' '}
                         <Label color="grey" variant="outline" isCompact>
@@ -111,7 +111,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
                   >
                     <DropdownList>
                       <DropdownItem onClick={() => setPreferencesOpen(true)}>
-                        Preferences
+                        {t('Preferences')}
                       </DropdownItem>
                       <DropdownItem
                         onClick={async () => {
@@ -123,7 +123,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
                           }
                         }}
                       >
-                        Log out
+                        {t('Log out')}
                       </DropdownItem>
                     </DropdownList>
                   </Dropdown>

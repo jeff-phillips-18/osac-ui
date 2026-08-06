@@ -50,6 +50,92 @@ export const SecurityGroupDetailPage = () => {
   const vn = virtualNetworks.find((v) => v.id === vnId);
   const vnName = resourceDisplayName(vn?.metadata, vnId);
 
+  const renderTabDetails = () => {
+    switch (activeTabKey) {
+      case 0:
+        return (
+          <Card>
+            <CardBody>
+              <SecurityGroupRulesTable
+                rules={sg?.spec?.ingress ?? []}
+                direction="ingress"
+                onAddRule={() => setRuleEditor({ direction: 'ingress' })}
+                onEditRule={(ruleIndex) => setRuleEditor({ direction: 'ingress', ruleIndex })}
+                onDeleteRule={(ruleIndex) =>
+                  setDeleteRuleTarget({ direction: 'ingress', ruleIndex })
+                }
+              />
+            </CardBody>
+          </Card>
+        );
+      case 1:
+        return (
+          <Card>
+            <CardBody>
+              <SecurityGroupRulesTable
+                rules={sg?.spec?.egress ?? []}
+                direction="egress"
+                onAddRule={() => setRuleEditor({ direction: 'egress' })}
+                onEditRule={(ruleIndex) => setRuleEditor({ direction: 'egress', ruleIndex })}
+                onDeleteRule={(ruleIndex) =>
+                  setDeleteRuleTarget({ direction: 'egress', ruleIndex })
+                }
+              />
+            </CardBody>
+          </Card>
+        );
+      case 2:
+        return (
+          <Card>
+            <CardTitle>{t('Details')}</CardTitle>
+            <CardBody>
+              <DescriptionList isHorizontal>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {sg?.metadata?.name ?? '—'}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Virtual Network')}</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {vnId ? (
+                      <Button
+                        variant="link"
+                        isInline
+                        onClick={() => navigate(`/networking/virtual-networks/${vnId}`)}
+                      >
+                        {vnName}
+                      </Button>
+                    ) : (
+                      vnName
+                    )}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <SecurityGroupStatusLabel state={sg?.status?.state} />
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+
+                {sg?.status?.message && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
+                    <DescriptionListDescription>{sg.status.message}</DescriptionListDescription>
+                  </DescriptionListGroup>
+                )}
+              </DescriptionList>
+            </CardBody>
+          </Card>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <ListPage
       title={sgName}
@@ -86,85 +172,13 @@ export const SecurityGroupDetailPage = () => {
           onSelect={(_event, tabIndex) => setActiveTabKey(tabIndex)}
           aria-label="Security group tabs"
         >
-          <Tab eventKey={0} title={<TabTitleText>{t('Inbound Rules')}</TabTitleText>}>
-            <Card>
-              <CardBody>
-                <SecurityGroupRulesTable
-                  rules={sg?.spec?.ingress ?? []}
-                  direction="ingress"
-                  onAddRule={() => setRuleEditor({ direction: 'ingress' })}
-                  onEditRule={(ruleIndex) => setRuleEditor({ direction: 'ingress', ruleIndex })}
-                  onDeleteRule={(ruleIndex) =>
-                    setDeleteRuleTarget({ direction: 'ingress', ruleIndex })
-                  }
-                />
-              </CardBody>
-            </Card>
-          </Tab>
-
-          <Tab eventKey={1} title={<TabTitleText>{t('Outbound Rules')}</TabTitleText>}>
-            <Card>
-              <CardBody>
-                <SecurityGroupRulesTable
-                  rules={sg?.spec?.egress ?? []}
-                  direction="egress"
-                  onAddRule={() => setRuleEditor({ direction: 'egress' })}
-                  onEditRule={(ruleIndex) => setRuleEditor({ direction: 'egress', ruleIndex })}
-                  onDeleteRule={(ruleIndex) =>
-                    setDeleteRuleTarget({ direction: 'egress', ruleIndex })
-                  }
-                />
-              </CardBody>
-            </Card>
-          </Tab>
-
-          <Tab eventKey={2} title={<TabTitleText>{t('Details')}</TabTitleText>}>
-            <Card>
-              <CardTitle>{t('Details')}</CardTitle>
-              <CardBody>
-                <DescriptionList isHorizontal>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      {sg?.metadata?.name ?? '—'}
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Virtual Network')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      {vnId ? (
-                        <Button
-                          variant="link"
-                          isInline
-                          onClick={() => navigate(`/networking/virtual-networks/${vnId}`)}
-                        >
-                          {vnName}
-                        </Button>
-                      ) : (
-                        vnName
-                      )}
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Status')}</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <SecurityGroupStatusLabel state={sg?.status?.state} />
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-
-                  {sg?.status?.message && (
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t('Message')}</DescriptionListTerm>
-                      <DescriptionListDescription>{sg.status.message}</DescriptionListDescription>
-                    </DescriptionListGroup>
-                  )}
-                </DescriptionList>
-              </CardBody>
-            </Card>
-          </Tab>
+          <Tab eventKey={0} title={<TabTitleText>{t('Inbound Rules')}</TabTitleText>} />
+          <Tab eventKey={1} title={<TabTitleText>{t('Outbound Rules')}</TabTitleText>} />
+          <Tab eventKey={2} title={<TabTitleText>{t('Details')}</TabTitleText>} />
         </Tabs>
+        <div className="pf-v6-u-my-md">
+          {renderTabDetails()}
+        </div>
       </ListPageBody>
 
       {ruleEditor && sg && (

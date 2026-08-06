@@ -72,7 +72,7 @@ const UserPreferencesModal: React.FC<UserPreferencesModalProps> = ({ onClose }) 
                 <MenuToggle
                   ref={toggleRef}
                   className="pf-v6-u-w-100"
-                  onClick={() => setThemeExpanded(true)}
+                  onClick={() => setThemeExpanded(prev => !prev)}
                   isExpanded={themeExpanded}
                 >
                   {selectedThemeLabel}
@@ -100,7 +100,7 @@ const UserPreferencesModal: React.FC<UserPreferencesModalProps> = ({ onClose }) 
                 <MenuToggle
                   ref={toggleRef}
                   className="pf-v6-u-w-100"
-                  onClick={() => setContrastExpanded(true)}
+                  onClick={() => setContrastExpanded(prev => !prev)}
                   isExpanded={contrastExpanded}
                 >
                   {selectedContrastLabel}

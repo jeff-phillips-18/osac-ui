@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 
 import { useUserPreferences } from './use-user-preferences';
@@ -140,8 +139,6 @@ export const useTheme = () => {
       const nextResolvedContrast = getResolvedContrast(highContrastMq, userContrast);
       updateThemeClass(htmlTagElement, nextResolvedTheme, nextResolvedContrast);
       setUserTheme(theme);
-      setResolvedTheme(nextResolvedTheme);
-      setResolvedContrast(nextResolvedContrast);
     },
     [htmlTagElement, setUserTheme, userContrast],
   );
@@ -154,8 +151,6 @@ export const useTheme = () => {
       const nextResolvedContrast = getResolvedContrast(highContrastMq, contrast);
       updateThemeClass(htmlTagElement, nextResolvedTheme, nextResolvedContrast);
       setUserContrast(contrast);
-      setResolvedTheme(nextResolvedTheme);
-      setResolvedContrast(nextResolvedContrast);
     },
     [htmlTagElement, setUserContrast, userTheme],
   );
